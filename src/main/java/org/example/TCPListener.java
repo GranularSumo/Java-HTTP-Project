@@ -1,36 +1,36 @@
 package org.example;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LineChannel {
+public class TCPListener {
 
     private static final String EOF = "__EOF__";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        BlockingQueue<String> channel = null;
+        try (ServerSocket server = new ServerSocket(9001)) {
 
-        try {
-            channel = getLinesChannel(new FileInputStream("src/messages.txt"));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        for (;;) {
-            String line = null;
-            try {
-                line = channel.take();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            while (true) {
+                Socket client = server.accept();
+                try (client) {
+                    BlockingQueue<String> channel = getLinesChannel(client.getInputStream());
+
+                    for (; ; ) {
+                        String line = channel.take();
+                        if (EOF.equals(line)) break;
+                        System.out.printf("read: %s%n", line);
+                    }
+
+                }
             }
-            if (EOF.equals(line)) break;
-            System.out.printf("read: %s%n", line);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
