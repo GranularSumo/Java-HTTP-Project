@@ -1,1 +1,1 @@
-A work in process HTTP 1.1 server in java based that I am building based on the Go implementation from this course on boot.dev: [Learn the HTTP Protocol in Go](https://www.boot.dev/courses/learn-http-protocol-golang)
+A work in process HTTP 1.1 server in java that I am building based on the Go implementation from this course on boot.dev: [Learn the HTTP Protocol in Go](https://www.boot.dev/courses/learn-http-protocol-golang)
