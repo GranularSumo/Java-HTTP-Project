@@ -2,6 +2,9 @@
 /shelf/
 /workspace.xml
 /vcs.xml
+/misc.xml
+/gradle.xml
+/.gitignore
 /uiDesigner.xml
 # Editor-based HTTP Client requests
 /httpRequests/

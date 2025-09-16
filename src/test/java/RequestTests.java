@@ -1,3 +1,4 @@
+import org.example.chunkReader.chunkReader;
 import org.example.request.Request;
 import org.example.request.RequestParser;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
         assertEquals("GET", request.requestLine().method());
@@ -33,7 +35,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
         assertEquals("GET", request.requestLine().method());
@@ -49,7 +52,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
         assertEquals("POST", request.requestLine().method());
@@ -65,7 +69,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
         assertEquals("OPTIONS", request.requestLine().method());
@@ -81,7 +86,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        assertThrows(IOException.class, () -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
     @Test
@@ -92,7 +98,8 @@ public class RequestTests {
                         "User-Agent: curl/7.81.0\r\n" +
                         "Accept: */*\r\n\r\n";
 
-        assertThrows(IOException.class, () -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
     @Test
@@ -103,7 +110,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        assertThrows(IOException.class, () -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
     @Test
@@ -114,7 +122,8 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        assertThrows(IOException.class, () -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
     @Test
@@ -125,6 +134,7 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        assertThrows(IOException.class, () -> RequestParser.requestFromReader(new StringReader(raw)));
+        chunkReader reader = new chunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 }
