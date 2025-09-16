@@ -22,9 +22,9 @@ public class RequestTests {
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
-        assertEquals("GET", request.requestLine().method());
-        assertEquals("/", request.requestLine().requestTarget());
-        assertEquals("1.1", request.requestLine().httpVersion());
+        assertEquals("GET", request.getRequestLine().method());
+        assertEquals("/", request.getRequestLine().requestTarget());
+        assertEquals("1.1", request.getRequestLine().httpVersion());
     }
 
     @Test
@@ -35,13 +35,13 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        chunkReader reader = new chunkReader(raw, 3);
+        chunkReader reader = new chunkReader(raw, 1);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
-        assertEquals("GET", request.requestLine().method());
-        assertEquals("/coffee", request.requestLine().requestTarget());
-        assertEquals("1.1", request.requestLine().httpVersion());
+        assertEquals("GET", request.getRequestLine().method());
+        assertEquals("/coffee", request.getRequestLine().requestTarget());
+        assertEquals("1.1", request.getRequestLine().httpVersion());
     }
 
     @Test
@@ -52,13 +52,13 @@ public class RequestTests {
                 "User-Agent: curl/7.81.0\r\n" +
                 "Accept: */*\r\n\r\n";
 
-        chunkReader reader = new chunkReader(raw, 3);
+        chunkReader reader = new chunkReader(raw, 200);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
-        assertEquals("POST", request.requestLine().method());
-        assertEquals("/coffee", request.requestLine().requestTarget());
-        assertEquals("1.1", request.requestLine().httpVersion());
+        assertEquals("POST", request.getRequestLine().method());
+        assertEquals("/coffee", request.getRequestLine().requestTarget());
+        assertEquals("1.1", request.getRequestLine().httpVersion());
     }
 
     @Test
@@ -73,9 +73,9 @@ public class RequestTests {
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
         assertNotNull(request);
 
-        assertEquals("OPTIONS", request.requestLine().method());
-        assertEquals("*", request.requestLine().requestTarget());
-        assertEquals("1.1", request.requestLine().httpVersion());
+        assertEquals("OPTIONS", request.getRequestLine().method());
+        assertEquals("*", request.getRequestLine().requestTarget());
+        assertEquals("1.1", request.getRequestLine().httpVersion());
     }
 
     @Test
@@ -136,5 +136,16 @@ public class RequestTests {
 
         chunkReader reader = new chunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
+    }
+
+    @Test
+    void TestInvalidNumBytesInChunkReader() {
+        String raw =
+                "OPTIONS coffee HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "User-Agent: curl/7.81.0\r\n" +
+                "Accept: */*\r\n\r\n";
+
+        assertThrows(IllegalArgumentException.class, () -> new chunkReader(raw, -1));
     }
 }

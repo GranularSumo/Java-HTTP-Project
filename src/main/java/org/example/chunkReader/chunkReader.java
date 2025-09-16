@@ -17,8 +17,14 @@ public class chunkReader extends InputStream {
      *
      * @param data the string data to read from
      * @param numBytesPerRead maximum bytes to read per operation
+     * @throws IllegalArgumentException if numBytesPerRead is less than 1
      */
     public chunkReader(String data, int numBytesPerRead) {
+
+        if (numBytesPerRead < 1) {
+            throw new IllegalArgumentException("numBytesPerRead must be at least 1, got: " + numBytesPerRead);
+        }
+
         this.data = data.getBytes();
         this.numBytesPerRead = numBytesPerRead;
         this.position = 0;

@@ -5,58 +5,91 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Set;
 
 public class RequestParser {
 
     /**
-     * Parses an HTTP request from an InputStream.
-     * Reads the entire request content and extracts the request line.
+     * Parses an HTTP request from an InputStream using incremental buffering.
+     * This method reads data in chunks, accumulating it in a growing buffer until
+     * a complete request line is found. Uses a stateful Request object to track
+     * parsing progress and handle partial data efficiently.
      *
      * @param inputStream the input stream containing the HTTP request data
      * @return a Request object containing the parsed request line
-     * @throws IOException if the request is empty, malformed, or cannot be read
+     * @throws IOException if the stream ends before a complete request is found,
+     *                     or if the request data is malformed
      */
     public static Request requestFromReader(InputStream inputStream) throws IOException {
+        Request request = new Request();
 
-        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        byte[] buffer = new byte[8];
+        int totalBytesInBuffer = 0;
 
-        String[] lines = content.split("\r\n", 2);
-        
-        if (lines.length == 0) {
-            throw new IOException("Empty request");
+        while (request.getStatus() != Request.Status.DONE) {
+            int bytesRead = inputStream.read(buffer, totalBytesInBuffer, buffer.length - totalBytesInBuffer);
+
+            if (bytesRead == -1) {
+                throw new IOException("Stream ended before complete request");
+            }
+
+            totalBytesInBuffer += bytesRead;
+
+            byte[] parseData = Arrays.copyOfRange(buffer, 0, totalBytesInBuffer);
+
+            int bytesParsed = request.parse(parseData);
+
+            if (bytesParsed > 0) {
+                System.arraycopy(buffer, bytesParsed, buffer, 0, totalBytesInBuffer - bytesParsed);
+                totalBytesInBuffer -= bytesParsed;
+            }
+
+            if (totalBytesInBuffer >= buffer.length - 1) {
+                buffer = Arrays.copyOf(buffer, buffer.length * 2);
+            }
+
         }
-        
-        return new Request(parseRequestLine(lines[0]));
+
+        return request;
+
     }
 
     /**
-     * Parses an HTTP request line string into a RequestLine object.
-     * Validates the format, HTTP method, request target, and HTTP version.
+     * Parses HTTP request line data from a byte array and returns parsing results.
+     * Searches for a complete request line ending with \\r\\n, validates the HTTP format,
+     * and returns both the parsed RequestLine and any remaining unparsed data.
      *
-     * @param s the request line string (e.g., "GET /path HTTP/1.1")
-     * @return a RequestLine object with parsed method, target, and version
+     * @param rawData the byte array containing HTTP request data to parse
+     * @return a RequestLineParseResult containing the parsed RequestLine (or null if incomplete),
+     *         remaining unparsed data, and the number of bytes consumed
      * @throws IOException if the request line format is invalid, contains an unsupported method,
      *                     invalid request target, or unsupported HTTP version
      */
-    public static RequestLine parseRequestLine(String s) throws IOException {
-        String[] parts = s.split(" ");
+    public static RequestLineParseResult parseRequestLine(byte[] rawData) throws IOException {
+
+        if (rawData == null || rawData.length < 2) {
+            return new RequestLineParseResult(null, "", 0);
+        }
+
+        int crlfindex = findCRLF(rawData);
+
+        if (crlfindex == -1) {
+            return new RequestLineParseResult(null, "", 0);
+        }
+
+        int bytesConsumed = crlfindex + 2;
+
+        String requestLine = new String(rawData, 0, crlfindex, StandardCharsets.UTF_8);
+        String restOfMessage = new String(rawData, bytesConsumed, rawData.length - bytesConsumed, StandardCharsets.UTF_8);
+
+        String[] parts = requestLine.split(" ");
+
         if (parts.length != 3) {
             throw new IOException("Invalid request line format");
         }
 
-        Set<String> validMethods = Set.of("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS");
-
-        if (!validMethods.contains(parts[0])) {
-            throw new IOException("Invalid HTTP method: " + parts[0]);
-        }
-        
         String method = parts[0];
-
-        if (!parts[1].startsWith("/") && !(method.equals("OPTIONS") && parts[1].startsWith("*"))) {
-            throw new IOException("Invalid request target: " + parts[1]);
-        }
-
         String requestTarget = parts[1];
 
         if (!parts[2].startsWith("HTTP/")) {
@@ -65,10 +98,37 @@ public class RequestParser {
 
         String httpVersion = parts[2].replace("HTTP/", "");
 
+        Set<String> validMethods = Set.of("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS");
+
+        if (!validMethods.contains(method)) {
+            throw new IOException("Invalid HTTP method: " + parts[0]);
+        }
+
+        if (!requestTarget.startsWith("/") && !(method.equals("OPTIONS") && parts[1].startsWith("*"))) {
+            throw new IOException("Invalid request target: " + parts[1]);
+        }
+
         if (!httpVersion.equals("1.1")) {
             throw new IOException("Unsupported HTTP version");
         }
-        
-        return new RequestLine(method, requestTarget, httpVersion);
+
+        return new RequestLineParseResult(new RequestLine(method, requestTarget, httpVersion), restOfMessage, bytesConsumed);
     }
+
+    /**
+     * Searches for the first occurrence of CRLF (\r\n) sequence in a byte array.
+     * This is used to identify the end of an HTTP request line.
+     *
+     * @param data the byte array to search
+     * @return the index of the \r character if CRLF is found, -1 otherwise
+     */
+    private static int findCRLF(byte[] data) {
+        for (int i = 0; i < data.length - 1; i++) {
+            if (data[i] == '\r' && data[i + 1] == '\n') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }
