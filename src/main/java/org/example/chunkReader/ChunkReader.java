@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * A custom InputStream implementation that reads data in controlled chunks.
  */
-public class chunkReader extends InputStream {
+public class ChunkReader extends InputStream {
 
     private final byte[] data;
     private final int numBytesPerRead;
@@ -19,7 +19,7 @@ public class chunkReader extends InputStream {
      * @param numBytesPerRead maximum bytes to read per operation
      * @throws IllegalArgumentException if numBytesPerRead is less than 1
      */
-    public chunkReader(String data, int numBytesPerRead) {
+    public ChunkReader(String data, int numBytesPerRead) {
 
         if (numBytesPerRead < 1) {
             throw new IllegalArgumentException("numBytesPerRead must be at least 1, got: " + numBytesPerRead);

@@ -69,19 +69,20 @@ public class RequestParser {
     public static RequestLineParseResult parseRequestLine(byte[] rawData) throws IOException {
 
         if (rawData == null || rawData.length < 2) {
-            return new RequestLineParseResult(null, "", 0);
+            return new RequestLineParseResult(null, null, 0);
         }
 
         int crlfindex = findCRLF(rawData);
 
         if (crlfindex == -1) {
-            return new RequestLineParseResult(null, "", 0);
+            return new RequestLineParseResult(null, null, 0);
         }
 
         int bytesConsumed = crlfindex + 2;
 
         String requestLine = new String(rawData, 0, crlfindex, StandardCharsets.UTF_8);
-        String restOfMessage = new String(rawData, bytesConsumed, rawData.length - bytesConsumed, StandardCharsets.UTF_8);
+        byte[] restOfMessage = new byte[rawData.length - bytesConsumed];
+        System.arraycopy(rawData, bytesConsumed, restOfMessage, 0, rawData.length - bytesConsumed);
 
         String[] parts = requestLine.split(" ");
 
@@ -122,8 +123,27 @@ public class RequestParser {
      * @param data the byte array to search
      * @return the index of the \r character if CRLF is found, -1 otherwise
      */
-    private static int findCRLF(byte[] data) {
+    public static int findCRLF(byte[] data) {
         for (int i = 0; i < data.length - 1; i++) {
+            if (data[i] == '\r' && data[i + 1] == '\n') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Searches for the first occurrence of CRLF (\r\n) sequence in a byte array
+     * starting from the specified position.
+     * This overloaded version allows parsing to continue from a specific offset,
+     * useful for parsing multiple lines or continuing from a previous position.
+     *
+     * @param data the byte array to search
+     * @param position the starting position in the byte array to begin searching
+     * @return the index of the \r character if CRLF is found, -1 otherwise
+     */
+    public static int findCRLF(byte[] data, int position) {
+        for (int i = position; i < data.length - 1; i++) {
             if (data[i] == '\r' && data[i + 1] == '\n') {
                 return i;
             }
