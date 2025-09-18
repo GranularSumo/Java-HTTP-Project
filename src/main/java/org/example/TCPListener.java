@@ -4,15 +4,13 @@ import org.example.request.Request;
 import org.example.request.RequestParser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * TCP server that listens for client connections and processes incoming data line by line.
+ * TCP server that listens for client connections and processes HTTP requests.
+ * Parses incoming HTTP request lines and headers, then outputs the parsed information.
+ * Uses RequestParser for incremental parsing of HTTP request data.
  */
 public class TCPListener {
 
@@ -20,6 +18,8 @@ public class TCPListener {
 
     /**
      * Main server loop that accepts client connections on port 9001.
+     * For each connection, parses the HTTP request and prints the request line
+     * (method, target, version) and all headers to standard output.
      *
      * @param args command line arguments (unused)
      * @throws IOException if the server socket cannot be created or bound
@@ -37,6 +37,10 @@ public class TCPListener {
                         System.out.println("- Method: " + request.getRequestLine().method());
                         System.out.println("- Target: " + request.getRequestLine().requestTarget());
                         System.out.println("- Version: " + request.getRequestLine().httpVersion());
+                        System.out.println("Headers:");
+                        for (String key : request.getHeaders().getHeaderMap().keySet()) {
+                            System.out.println("- " + key + ": " + request.getHeaders().getValue(key));
+                        }
                     }
                 } catch (IOException e) {
                     System.err.println("Error handling client connection: " + e.getMessage());
