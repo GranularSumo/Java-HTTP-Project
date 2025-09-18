@@ -15,7 +15,7 @@ public class ChunkReader extends InputStream {
     /**
      * Creates a new chunkReader from a string.
      *
-     * @param data the string data to read from
+     * @param data            the string data to read from
      * @param numBytesPerRead maximum bytes to read per operation
      * @throws IllegalArgumentException if numBytesPerRead is less than 1
      */

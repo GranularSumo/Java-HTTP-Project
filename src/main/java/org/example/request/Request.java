@@ -17,7 +17,6 @@ public class Request {
     private final Headers headers;
 
 
-
     /**
      * Represents the current state of the HTTP request parser.
      */

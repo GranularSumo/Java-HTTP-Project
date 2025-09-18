@@ -11,7 +11,7 @@ import java.util.Map;
  * Represents HTTP headers and provides functionality to parse HTTP header data.
  * This class can incrementally parse header data from byte arrays, maintaining
  * state between parsing calls to handle partial data efficiently.
- *
+ * <p>
  * Headers are parsed according to HTTP/1.1 specification, where each header line
  * consists of a field name followed by a colon, optional whitespace, field value,
  * and terminated by CRLF. Multiple headers with the same name are combined with
@@ -58,7 +58,7 @@ public class Headers {
      * Parses a single HTTP header line from the provided byte array starting at the given position.
      * Handles header field validation, duplicate header combination, and end-of-headers detection.
      *
-     * @param data the byte array containing HTTP header data
+     * @param data     the byte array containing HTTP header data
      * @param position the starting position in the byte array to begin parsing
      * @return the number of bytes consumed for this header line, or -1 if incomplete data
      * @throws IOException if the header format is invalid, contains illegal characters,
@@ -92,7 +92,7 @@ public class Headers {
         }
 
         String key = new String(data, position, separatorIndex - position, StandardCharsets.UTF_8);
-        key =  key.trim().toLowerCase();
+        key = key.trim().toLowerCase();
         String value = new String(data, separatorIndex + 1, crlfIndex - (separatorIndex + 1), StandardCharsets.UTF_8);
         value = value.trim();
 

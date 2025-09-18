@@ -15,7 +15,7 @@ public class RequestLineParseResult {
     /**
      * Creates a new RequestLineParseResult.
      *
-     * @param requestLine the parsed RequestLine, or null if parsing was incomplete
+     * @param requestLine   the parsed RequestLine, or null if parsing was incomplete
      * @param restOfMessage the remaining unparsed data after the request line
      * @param bytesConsumed the number of bytes consumed from the original input during parsing
      */

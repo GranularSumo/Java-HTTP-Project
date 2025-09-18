@@ -2,8 +2,6 @@ package org.example.request;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Set;
@@ -62,7 +60,7 @@ public class RequestParser {
      *
      * @param rawData the byte array containing HTTP request data to parse
      * @return a RequestLineParseResult containing the parsed RequestLine (or null if incomplete),
-     *         remaining unparsed data, and the number of bytes consumed
+     * remaining unparsed data, and the number of bytes consumed
      * @throws IOException if the request line format is invalid, contains an unsupported method,
      *                     invalid request target, or unsupported HTTP version
      */
@@ -138,7 +136,7 @@ public class RequestParser {
      * This overloaded version allows parsing to continue from a specific offset,
      * useful for parsing multiple lines or continuing from a previous position.
      *
-     * @param data the byte array to search
+     * @param data     the byte array to search
      * @param position the starting position in the byte array to begin searching
      * @return the index of the \r character if CRLF is found, -1 otherwise
      */

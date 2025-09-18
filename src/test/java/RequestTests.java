@@ -13,9 +13,9 @@ public class RequestTests {
     void TestGoodRequestLine() {
         String raw =
                 "GET / HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
@@ -30,9 +30,9 @@ public class RequestTests {
     void TestGoodRequestLineWithPath() {
         String raw =
                 "GET /coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 1);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
@@ -47,9 +47,9 @@ public class RequestTests {
     void TestGoodPOSTRequestWithPath() {
         String raw =
                 "POST /coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 200);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
@@ -64,9 +64,9 @@ public class RequestTests {
     void TestGoodOPTIONSRequestTarget() {
         String raw =
                 "OPTIONS * HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
@@ -81,9 +81,9 @@ public class RequestTests {
     void TestRequestWithGoodHeaders() {
         String data =
                 "GET / HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(data, 3);
         Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
@@ -97,9 +97,9 @@ public class RequestTests {
     void TestInvalidNumPartsInRequestLine() {
         String raw =
                 "/coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
@@ -121,9 +121,9 @@ public class RequestTests {
     void TestInvalidHTTPVersion() {
         String raw =
                 "GET /coffee HTTP/1.0\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
@@ -133,9 +133,9 @@ public class RequestTests {
     void TestInvalidGETRequestTarget() {
         String raw =
                 "GET coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
@@ -145,9 +145,9 @@ public class RequestTests {
     void TestInvalidOPTIONSRequestTarget() {
         String raw =
                 "OPTIONS coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
@@ -157,9 +157,9 @@ public class RequestTests {
     void TestInvalidNumBytesInChunkReader() {
         String raw =
                 "OPTIONS coffee HTTP/1.1\r\n" +
-                "Host: localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host: localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         assertThrows(IllegalArgumentException.class, () -> new ChunkReader(raw, -1));
     }
@@ -168,9 +168,9 @@ public class RequestTests {
     void TestMalformedHeader() {
         String raw =
                 "GET / HTTP/1.1\r\n" +
-                "Host localhost:9001\r\n" +
-                "User-Agent: curl/7.81.0\r\n" +
-                "Accept: */*\r\n\r\n";
+                        "Host localhost:9001\r\n" +
+                        "User-Agent: curl/7.81.0\r\n" +
+                        "Accept: */*\r\n\r\n";
 
         ChunkReader reader = new ChunkReader(raw, 3);
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
