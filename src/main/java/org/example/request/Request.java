@@ -14,7 +14,7 @@ import java.io.IOException;
 public class Request {
     RequestLine requestLine;
     private Status status;
-    private Headers headers;
+    private final Headers headers;
 
 
 
