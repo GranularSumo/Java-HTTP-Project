@@ -90,7 +90,7 @@ public class Request {
             case PARSING_BODY:
                 int contentLength = Integer.parseInt(this.headers.getValue("content-length"));
                 if (this.body.length + data.length > contentLength) {
-                    throw new IOException("Request body exceeds stated content length");
+                    throw new IOException("Request body exceeds stated Content-Length");
                 }
                 byte[] newBody = Arrays.copyOf(this.body, this.body.length + data.length);
                 System.arraycopy(data, 0, newBody, this.body.length, data.length);

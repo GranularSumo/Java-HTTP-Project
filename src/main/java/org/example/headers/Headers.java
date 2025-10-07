@@ -151,9 +151,20 @@ public class Headers {
         else return validCharacters.contains(String.valueOf(c));
     }
 
-    public boolean contentLengthExists() {
+    public boolean contentLengthExists() throws IOException {
         String contentLength = this.headerMap.get("content-length");
-        return contentLength != null && Integer.parseInt(contentLength) > 0;
+        if (contentLength == null) {
+            return false;
+        }
+        int length = Integer.parseInt(contentLength);
+        if (length < 0) {
+            throw new IOException("Content-Length cannot be negative");
+        }
+        return length > 0;
+    }
+
+    public void put(String key, String value) {
+        headerMap.put(key.toLowerCase(), value);
     }
 
 
