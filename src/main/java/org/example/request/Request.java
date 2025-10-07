@@ -3,6 +3,8 @@ package org.example.request;
 import org.example.headers.Headers;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * Represents an HTTP request.
@@ -15,6 +17,7 @@ public class Request {
     RequestLine requestLine;
     private Status status;
     private final Headers headers;
+    private byte[] body;
 
 
     /**
@@ -23,6 +26,7 @@ public class Request {
     public enum Status {
         INITIALISED,
         PARSING_HEADERS,
+        PARSING_BODY,
         DONE
     }
 
@@ -32,6 +36,7 @@ public class Request {
     public Request() {
         this.status = Status.INITIALISED;
         this.headers = new Headers();
+        this.body = new byte[0];
     }
 
     /**
@@ -57,7 +62,11 @@ public class Request {
                 int headerBytes = this.headers.parse(result.getRestOfMessage());
 
                 if (this.headers.isDone()) {
-                    this.status = Status.DONE;
+                    if (this.headers.contentLengthExists()) {
+                        this.status = Status.PARSING_BODY;   
+                    } else {
+                        this.status = Status.DONE;
+                    }
                 }
 
                 if (headerBytes == -1) {
@@ -68,12 +77,29 @@ public class Request {
             case PARSING_HEADERS:
                 headerBytes = this.headers.parse(data);
                 if (this.headers.isDone()) {
-                    this.status = Status.DONE;
+                    if (this.headers.contentLengthExists()) {
+                        this.status = Status.PARSING_BODY;
+                    } else {
+                        this.status = Status.DONE;
+                    }
                 }
                 if (headerBytes == -1) {
                     return 0;
                 }
                 return headerBytes;
+            case PARSING_BODY:
+                int contentLength = Integer.parseInt(this.headers.getValue("content-length"));
+                if (this.body.length + data.length > contentLength) {
+                    throw new IOException("Request body exceeds stated content length");
+                }
+                byte[] newBody = Arrays.copyOf(this.body, this.body.length + data.length);
+                System.arraycopy(data, 0, newBody, this.body.length, data.length);
+                this.body = newBody;
+
+                if (this.body.length == contentLength) {
+                    this.status = Status.DONE;
+                }
+                return data.length;
             case DONE:
                 return 0;
             default:
@@ -109,6 +135,14 @@ public class Request {
      */
     public Headers getHeaders() {
         return this.headers;
+    }
+
+    public String getBodyAsString() {
+        return new String(this.body, 0, this.body.length, StandardCharsets.UTF_8);
+    }
+
+    public byte[] getBody() {
+        return this.body;
     }
 }
 

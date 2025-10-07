@@ -41,6 +41,8 @@ public class TCPListener {
                         for (String key : request.getHeaders().getHeaderMap().keySet()) {
                             System.out.println("- " + key + ": " + request.getHeaders().getValue(key));
                         }
+                        System.out.println("Body:");
+                        System.out.println(request.getBodyAsString());
                     }
                 } catch (IOException e) {
                     System.err.println("Error handling client connection: " + e.getMessage());
