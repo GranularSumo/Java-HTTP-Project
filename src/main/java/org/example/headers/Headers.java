@@ -153,7 +153,14 @@ public class Headers {
 
     public boolean contentLengthExists() {
         String contentLength = this.headerMap.get("content-length");
-        return contentLength != null && Integer.parseInt(contentLength) > 0;
+        if (contentLength == null) {
+            return false;
+        }
+        int length = Integer.parseInt(contentLength);
+        if (length < 0) {
+            throw new IOException("Content-Length cannot be negative");
+        }
+        return length > 0;
     }
 
 
