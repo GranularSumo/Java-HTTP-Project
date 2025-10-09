@@ -151,7 +151,7 @@ public class Headers {
         else return validCharacters.contains(String.valueOf(c));
     }
 
-    public boolean contentLengthExists() {
+    public boolean contentLengthExists() throws IOException {
         String contentLength = this.headerMap.get("content-length");
         if (contentLength == null) {
             return false;
