@@ -313,7 +313,7 @@ public class RequestTests {
                 "Host: localhost:9001\r\n" +
                 "Content-Length: -5\r\n\r\n";
         ChunkReader reader = new ChunkReader(raw, 10);
-        assertThrows(NumberFormatException.class, () -> RequestParser.requestFromReader(reader));
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
 }
