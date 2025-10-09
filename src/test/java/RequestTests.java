@@ -225,4 +225,95 @@ public class RequestTests {
         assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
     }
 
+    @Test
+    public void TestStandardBody() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: 13\r\n\r\n" +
+                "hello world!\n";
+        ChunkReader reader = new ChunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
+        assertNotNull(request);
+        assertEquals("hello world!\n", request.getBodyAsString());
+    }
+
+    @Test
+    public void TestBodyThatParsesInFirstPass() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: 13\r\n\r\n" +
+                "hello world!\n";
+        ChunkReader reader = new ChunkReader(raw, 100);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
+        assertNotNull(request);
+        assertEquals("hello world!\n", request.getBodyAsString());
+    }
+
+    @Test
+    public void TestBodyDataExceedsContentLengthInFirstPass() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: 13\r\n\r\n" +
+                "hello world!123123\n";
+        ChunkReader reader = new ChunkReader(raw, 100);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
+    }
+
+    @Test
+    public void TestBodyShorterThanContentLenght() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: 20\r\n\r\n" +
+                "partial content\n";
+        ChunkReader reader = new ChunkReader(raw, 3);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
+    }
+
+    @Test
+    public void TestEmptyBody() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: 0\r\n\r\n";
+        ChunkReader reader = new ChunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
+        assertNotNull(request);
+        assertEquals("", request.getBodyAsString());
+    }
+
+    @Test void TestNoReportedContentLength() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n\r\n";
+        ChunkReader reader = new ChunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
+        assertNotNull(request);
+        assertEquals("", request.getBodyAsString());
+    }
+
+    @Test void TestNoContentLegnthButBodyExists() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n\r\n" +
+                "hello world!\n";
+        ChunkReader reader = new ChunkReader(raw, 3);
+        Request request = assertDoesNotThrow(() -> RequestParser.requestFromReader(reader));
+        assertNotNull(request);
+    }
+
+    @Test
+    public void TestContentLengthIsInvalid() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: abc\r\n\r\n";
+        ChunkReader reader = new ChunkReader(raw, 10);
+        assertThrows(NumberFormatException.class, () -> RequestParser.requestFromReader(reader));
+    }
+
+    @Test
+    public void TestContentLengthIsNegative() {
+        String raw = "GET / HTTP/1.1\r\n" +
+                "Host: localhost:9001\r\n" +
+                "Content-Length: -5\r\n\r\n";
+        ChunkReader reader = new ChunkReader(raw, 10);
+        assertThrows(IOException.class, () -> RequestParser.requestFromReader(reader));
+    }
+
 }

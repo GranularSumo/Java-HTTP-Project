@@ -1,11 +1,11 @@
 package org.example.headers;
 
-import org.example.request.RequestParser;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.example.utils.HttpUtils.findCRLF;
 
 /**
  * Represents HTTP headers and provides functionality to parse HTTP header data.
@@ -65,7 +65,7 @@ public class Headers {
      *                     or has improper spacing around the colon separator
      */
     public int parseSingle(byte[] data, int position) throws IOException {
-        int crlfIndex = RequestParser.findCRLF(data, position);
+        int crlfIndex = findCRLF(data, position);
 
         if (crlfIndex == -1) {
             return -1;
@@ -150,5 +150,18 @@ public class Headers {
         if (Character.isLetterOrDigit(c)) return true;
         else return validCharacters.contains(String.valueOf(c));
     }
+
+    public boolean contentLengthExists() throws IOException {
+        String contentLength = this.headerMap.get("content-length");
+        if (contentLength == null) {
+            return false;
+        }
+        int length = Integer.parseInt(contentLength);
+        if (length < 0) {
+            throw new IOException("Content-Length cannot be negative");
+        }
+        return length > 0;
+    }
+
 
 }
