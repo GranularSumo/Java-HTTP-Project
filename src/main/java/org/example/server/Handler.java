@@ -1,9 +1,10 @@
 package org.example.server;
 
 import org.example.request.Request;
+import org.example.response.ResponseWriter;
 
-import java.io.OutputStream;
+import java.io.IOException;
 
 public interface Handler {
-    HandleError handle(OutputStream output, Request request);
+    void handle(ResponseWriter responseWriter, Request request) throws IOException;
 }

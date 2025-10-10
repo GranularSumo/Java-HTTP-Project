@@ -2,12 +2,12 @@ package org.example.server;
 
 import org.example.request.Request;
 import org.example.request.RequestParser;
-import org.example.response.Response;
+import org.example.response.ResponseWriter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,18 +15,21 @@ public class Server {
     private final ServerSocket serverSocket;
     private final ExecutorService executorService;
     private final Handler handler;
+    private ProxyHandler proxyHandler;
     private volatile boolean running;
+    private final int socketTimeout;
 
-    public Server(int port, Handler handler) throws IOException {
+    public Server(int port, int socketTimeout) throws IOException {
         this.executorService = Executors.newCachedThreadPool();
         this.serverSocket = new ServerSocket(port);
-        this.handler = handler;
-
+        this.handler = new DefaultHandler();
+        this.socketTimeout = socketTimeout;
+        this.proxyHandler = new ProxyHandler();
     }
 
     public void start() {
-        new Thread(this::listen).start();
         this.running = true;
+        new Thread(this::listen).start();
     }
 
     private void listen() {
@@ -42,24 +45,29 @@ public class Server {
 
     private void handle(Socket conn) {
         try (conn) {
+            conn.setSoTimeout(socketTimeout);
+            System.out.println("Connection accepted from: " + conn.getRemoteSocketAddress());
             Request request = RequestParser.requestFromReader(conn.getInputStream());
+            System.out.println("Request parsed: " + request.getRequestLine().method() + " " + request.getRequestLine().requestTarget());
+            ResponseWriter responseWriter = new ResponseWriter(conn.getOutputStream());
 
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            HandleError error = this.handler.handle(buffer, request);
-
-            if (error != null) {
-                Response response = new Response();
-                response.setStatusCode(response.convertIntToStatusCode(error.getStatusCode()));
-                response.setBody(error.getMessage());
-                response.writeTo(conn.getOutputStream());
-            } else {
-                Response response = new Response();
-                response.setBody(buffer.toString());
-                response.writeTo(conn.getOutputStream());
+            if (request.getRequestLine().requestTarget().startsWith(proxyHandler.getProxyPath())) {
+                this.proxyHandler.handle(responseWriter, request);
+            }
+            else if (Objects.equals(request.getRequestLine().requestTarget(), "/video")) {
+                VideoHandler handler1 = new VideoHandler();
+                handler1.handle(responseWriter, request);
+            }
+            else {
+                this.handler.handle(responseWriter, request);
             }
 
+            System.out.println("Response sent successfully");
+
+        } catch (java.net.SocketTimeoutException e) {
+            System.err.println("Connection timed out: " + e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error handling connection: " + e.getMessage());
         }
     }
 
@@ -67,5 +75,9 @@ public class Server {
         running = false;
         try { serverSocket.close(); } catch (IOException ignored) {}
         executorService.shutdown();
+    }
+
+    public void setProxy(String path, String url) {
+        this.proxyHandler.setProxy(path, url);
     }
 }
