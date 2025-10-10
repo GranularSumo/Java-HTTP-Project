@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <h1>This is a test response</h1>
+    <p>This GET request worked correctly.</p>
+    <p>This works because there is a mapping set up in the DefaultHandler that maps this index page to:</p>
+    <b>http://localhost:9001/</b>
+
+    <h2>Test Form</h2>
+    <p>This form tests that you recieve a bad request response if there is no mapping for the POST request.</p>
+    <form action="/post" method="post">
+        <input type="text" id="forminput" name="forminput">
+        <input type="submit" value="Submit">
+    </form>
+
+    <h2>Chunked Encoding</h2>
+    <p>The server can act as a proxy, and send data in chunks</p>
+    <a href="/jsonplaceholder/posts">Click Here</a>
+
+    <h2>Binary Data</h2>
+    <p>It can also serve binary data, to host things like images or videos.</p>
+    <a href="/video">Click Here</a>
+
+</body>
+</html>

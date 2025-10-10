@@ -51,7 +51,7 @@ public class Headers {
 
             totalBytesParsed += result;
         }
-        return totalBytesParsed;
+        return totalBytesParsed == 0 ? -1 : totalBytesParsed;
     }
 
     /**
@@ -65,6 +65,9 @@ public class Headers {
      *                     or has improper spacing around the colon separator
      */
     public int parseSingle(byte[] data, int position) throws IOException {
+        if (position >= data.length) {
+            return -1;
+        }
         int crlfIndex = findCRLF(data, position);
 
         if (crlfIndex == -1) {
@@ -109,7 +112,7 @@ public class Headers {
             headerMap.put(key, value);
         }
 
-        return crlfIndex + 2;
+        return crlfIndex - position + 2;
     }
 
     /**
@@ -163,5 +166,8 @@ public class Headers {
         return length > 0;
     }
 
+    public void put(String key, String value) {
+        headerMap.put(key, value);
+    }
 
 }

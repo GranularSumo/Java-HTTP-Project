@@ -24,7 +24,7 @@ public class RequestParser {
     public static Request requestFromReader(InputStream inputStream) throws IOException {
         Request request = new Request();
 
-        byte[] buffer = new byte[8];
+        byte[] buffer = new byte[64];
         int totalBytesInBuffer = 0;
 
         while (request.getStatus() != Request.Status.DONE) {

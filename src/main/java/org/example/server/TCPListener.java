@@ -1,4 +1,4 @@
-package org.example;
+package org.example.server;
 
 import org.example.request.Request;
 import org.example.request.RequestParser;
